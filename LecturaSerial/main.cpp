@@ -1,39 +1,39 @@
 #include <iostream>
-#include <QSerialPort>
 #include <QSerialPortInfo>
-#include <QThread>
+#include <QSerialPort>
+#include <QDebug>
+
 using namespace std;
 
 int main()
 {
-    QSerialPort serial;
+    QSerialPort *arduino = new QSerialPort;
+    arduino->setPortName("ttyACM1");
+    arduino->open(QIODevice::ReadWrite);
+    arduino->setDataBits(QSerialPort::Data8);
+    arduino ->setBaudRate(QSerialPort::Baud9600);
+    arduino->setParity(QSerialPort::NoParity);
+    arduino->setStopBits(QSerialPort::OneStop);
+    arduino->setFlowControl(QSerialPort::NoFlowControl);
 
-    serial.setPortName("ttyACM0"); //Poner el nombre del puerto, probablemente no sea COM3
+    qDebug() << "Serial is" << arduino->isOpen() << arduino->isWritable();
+    arduino->waitForReadyRead(1000);
 
-    if(serial.open(QIODevice::ReadWrite)){
-        serial.setBaudRate(QSerialPort::Baud9600); //Configurar la tasa de baudios
+    if (arduino->isOpen() && arduino->isWritable())
+    {
+        qDebug() << "Serial is open";
+        QByteArray output;
 
-        char data;
-        int l = 0;
+        arduino->write("k\n");
+        arduino->waitForBytesWritten(100);
+        arduino->waitForReadyRead(100);
 
-
-        while(1){
-            cout <<"Bytes of serial: "<<serial.bytesAvailable() << endl;
-            serial.write("k\n");
-            serial.waitForBytesWritten(1000);
-            serial.waitForReadyRead(1000);
-
-            while(serial.bytesAvailable()>0){
-                serial.waitForReadyRead(1000);
-                serial.read(&data,1);
-                cout << data;
-            }
-            cout << endl;
+        if(arduino->bytesAvailable()>0){
+            qDebug() << "Bytes por leer";
+            qDebug() << arduino->read(10);
         }
-
-    }
-    else{
-        cout << "Error al abrir el puerto";
+    } else {
+        qDebug() << "Error opening";
     }
     return 0;
 }
