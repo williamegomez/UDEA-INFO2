@@ -3,112 +3,202 @@
 #include <exception>
 using namespace std;
 
-int main()
-{
-
-    //Ejemplo de escritura
-
-    char str[] = "Hola";
-    ofstream escritura;
-
-    escritura.open("datos.txt");
-
-    //escritura.open("datos.txt", ios::app);
-
-    //escritura.open("datos.txt", ios::trunc);
-
-    if(!escritura.fail()){
-        escritura << "Hola Mundo\n";
-
-        escritura.write("linea",3);
-
-        escritura.write(str,3);
-
-        escritura.put('5');
-
-        escritura.seekp(2,ios::beg);
-        escritura << "L";
+int getCount(char* array,int n){
+    int count= 0;
+    for(int i=0;i<n;i++){
+        if(array[i]-48==0){
+            count++;
+        }
     }
-
-    escritura.close();
-
-
-    //Ejemplo de lectura
-
-    ifstream lectura;
-
-    lectura.open("datos.txt");
-
-    string line;
-    char character;
-    char array[100];
-
-    if(!lectura.fail()){
-        getline(lectura,line);
-
-        lectura.seekg(3,ios::beg);
-        character = lectura.get();
-
-        cout << line << endl;
-        cout << character << endl;
+    return count;
+}
 
 
-        lectura.seekg(0,ios::beg);
-        lectura.getline(array,100); //Diferente propio de ifstream
-        cout << lectura.gcount() << " characters read: " << array << '\n';
-    }
+void Codificacion1(ifstream* lectura,ofstream* escritura){
+    cout << "Codicacion 1 escogida" << endl;
 
-    lectura.close();
-
-
-    // Ejemplo archivo binario
-    // sha256sum
-
-    ofstream escritura2("imagencopia.png",ios::binary| ios::trunc);
-    int n,indice;
-
+    int n;
     cout << "Ingrese tamaño del bloque:" << endl;
     cin >> n;
 
-    ifstream lectura2("imagen.png", ios::binary ); // escritura a leer en binario
+    lectura->seekg(0, ios::end);
+    int fin = lectura->tellg() - 1;
 
-    if(!lectura2.fail()){
-        lectura2.seekg(0,ios::end); //Ubicarnos en el final del escritura
+    lectura->seekg(0, ios::beg);
+    char bloqueActual[100], bloquePasado[100], bloqueConvertido[100];
 
-        int final = lectura2.tellg(); //Cual es el final?
-        cout << "El tamaño del escritura en bytes es: " << final << endl;
+    int count = 0;
+    int indice = 0;
 
-        lectura2.seekg(0,ios::beg); //Nos volvemos a ubicar en el inicio
+    while(!lectura->eof()){
+        lectura->read(bloqueActual,n);
 
-        char linea[100];
-
-        while(1){
-
-                indice = lectura2.tellg(); //Indice que nos dice en que posicion estamos
-                cout << indice << endl;
-                if(indice+n<final){ //El indice más el tamaño del bloque se salen del escritura
-                    lectura2.read(linea,n); //Si no, se lee el tamaño del bloque
-                    escritura2.write(linea,n); //Se escribe en el nuevo escritura
-                }
-                else{
-                    lectura2.read(linea,final-indice);  //Se lee entonces lo que falta que e s  menos del tamaño del bloque
-                    escritura2.write(linea,final-indice); //Se escribe lo que falta
-                    break;
-                }
-
-                if(lectura2.fail()){ // Si hay error se indica
-                    cout << "Lectura erronea" << endl;
-
-                }
-
+        for(int i=0;i<n;i++){
+            bloqueConvertido[i]=bloqueActual[i];
         }
+
+        if(indice>=fin){
+            break;
+        }
+
+        if(count == 0){
+            for(int i=0;i<n;i++){
+                if(bloqueActual[i]-48==0){
+                    bloqueConvertido[i]=49;
+                }
+                else {
+                    bloqueConvertido[i]=48;
+                }
+            }
+        }
+        else {
+            int numZeros = getCount(bloquePasado,n);
+            cout << numZeros<<endl;
+
+            if (n-numZeros==numZeros){ //Iguales
+                for(int i=0;i<n;i++){
+                    if(bloqueActual[i]-48==0){
+                        bloqueConvertido[i]=49;
+                    }
+                    else {
+                        bloqueConvertido[i]=48;
+                    }
+                }
+            }
+            else if(n-numZeros>numZeros){ //Hay mas 1
+                for(int i=2;i<n;i=i+3){
+                    cout << int(bloqueActual[i]);
+                    if(bloqueActual[i]-48==0){
+                        bloqueConvertido[i]=49;
+                    }
+                    else {
+                        bloqueConvertido[i]=48;
+                    }
+                }
+            } else { //Hay menos 1
+                for(int i=1;i<n;i=i+2){
+                    if(bloqueActual[i]-48==0){
+                        bloqueConvertido[i]=49;
+                    }
+                    else {
+                        bloqueConvertido[i]=48;
+                    }
+                }
+            }
+        }
+
+        cout << "Actual: " << bloqueActual << endl;
+        cout << "Convertido: " << bloqueConvertido << endl;
+
+        if(lectura->eof() && indice<fin){
+            escritura->write(bloqueConvertido,n-indice);
+        }
+        else {
+            escritura->write(bloqueConvertido,n);
+        }
+
+
+        for(int i=0;i<n;i++){
+            bloquePasado[i] = bloqueActual[i];
+        }
+
+        count++;
+        indice = indice + n;
     }
-    else{
-        cout << "Error al abrir el archivo" << endl;
+}
+
+void Codificacion2(ifstream* lectura,ofstream* escritura){
+    cout << "Codicacion 2 escogida" << endl;
+
+    int n;
+    cout << "Ingrese tamaño del bloque:" << endl;
+    cin >> n;
+
+    lectura->seekg(0, ios::end);
+    int fin = lectura->tellg() - 1;
+
+    lectura->seekg(0, ios::beg);
+    char bloqueActual[100], bloquePasado[100], bloqueConvertido[100];
+
+    int count = 0;
+    int indice = 0;
+
+    while(!lectura->eof()){
+        lectura->read(bloqueActual,n);
+
+        if(indice>=fin){
+            break;
+        }
+
+        if(lectura->eof() && indice<fin){
+            bloqueConvertido[0]=bloqueActual[fin-indice-1];
+            for(int i=1;i<fin-indice;i++){
+              bloqueConvertido[i]=bloqueActual[i-1];
+            }
+            escritura->write(bloqueConvertido,fin-indice);
+        }
+        else {
+            bloqueConvertido[0]=bloqueActual[n-1];
+            for(int i=1;i<n;i++){
+              bloqueConvertido[i]=bloqueActual[i-1];
+            }
+            escritura->write(bloqueConvertido,n);
+        }
+
+        cout << "Actual: " << bloqueActual << endl;
+        cout << "Convertido: " << bloqueConvertido << endl;
+
+        for(int i=0;i<n;i++){
+            bloquePasado[i] = bloqueActual[i];
+        }
+
+        count++;
+        indice = indice + n;
+    }
+}
+
+int main()
+{
+
+    string mensajeFile;
+    cout << "Ingrese la ruta del mensaje a codificar:" << endl;
+    cin >> mensajeFile;
+
+    ifstream lectura;
+    lectura.open(mensajeFile, ios::binary);
+
+    if(lectura.fail()){
+        cout << "Error al abrir el archivo de lectura\n";
+        return -1;
     }
 
+    string codificadoFile;
+    cout << "Ingrese la ruta de salida:" << endl;
+    cin >> codificadoFile;
+    ofstream escritura;
 
-    lectura2.close(); //Se cierran los escrituras
-    escritura2.close(); //Se cierra
+    escritura.open(codificadoFile);
 
+    if(escritura.fail()){
+        cout << "Error al abrir el archivo de escritura\n";
+        return -1;
+    }
+
+    int Metodo;
+    cout << "Ingrese método de codificacion:" << endl;
+    cin >> Metodo;
+
+    switch (Metodo) {
+    case 1:
+        Codificacion1(&lectura, &escritura);
+        break;
+    case 2:
+        Codificacion2(&lectura, &escritura);
+        break;
+    default:
+        cout << "Método incorrecto \n";
+        return -1;
+    }
+    lectura.close(); //Se cierran los escrituras
+    escritura.close(); //Se cierra
 }
