@@ -11,7 +11,7 @@ void loop() {
     char ByteLlegando = Serial.read(); 
     if(ByteLlegando == 'k'){
       digitalWrite(13, HIGH);
-      Serial.print("2352"); // wait for a second
+      Serial.print("12023020234"); // wait for a second
     }
   }
 }

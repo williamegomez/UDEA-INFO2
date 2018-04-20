@@ -13,7 +13,7 @@ void codificar(string cod) {
 int main()
 {
     QSerialPort *arduino = new QSerialPort;
-    arduino->setPortName("ttyACM0");
+    arduino->setPortName("ttyUSB0");
     arduino->open(QIODevice::ReadWrite);
     arduino->setDataBits(QSerialPort::Data8);
     arduino ->setBaudRate(QSerialPort::Baud115200);
@@ -30,7 +30,7 @@ int main()
         QByteArray output;
 
         arduino->write("k");
-        arduino->waitForBytesWritten(100);
+        arduino->waitForBytesWritten(1000);
 
         arduino->waitForReadyRead(1000);
 
