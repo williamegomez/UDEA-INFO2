@@ -1,0 +1,44 @@
+#include <iostream>
+#include "particula.h"
+using namespace std;
+
+int main()
+{
+    cout<<"Ingrese el numero de particulas: ";
+    int numeroparticulas;
+    cin>>numeroparticulas;
+    vector<Particula*> particulas(numeroparticulas);
+
+    for(int i=0;i<numeroparticulas;i++){
+        cout<<"Ingrese PX de la particula "<<i<<":";
+        float PX; cin>>PX;
+        cout<<"Ingrese PY de la particula "<<i<<":";
+        float PY; cin>>PY;
+        cout<<"Ingrese PX de la particula "<<i<<":";
+        float VX; cin>>VX;
+        cout<<"Ingrese PX de la particula "<<i<<":";
+        float VY; cin>>VY;
+        Particula* particula=new Particula(PX,PY,VX,VY);
+        particulas.push_back(particula);
+    }
+
+
+
+
+    Particula P1(0,10);
+    float dt=0.1;
+    for(int i=0;i<100;i++){
+
+        for 1
+                for 2 3 4 5 6 7 8 9 10
+                    f12+
+                    f13+
+                    f14
+
+        P1.setAcceleration(0,-9.8);
+        P1.updatePosition(dt);
+        P1.printCurrentPosition();
+    }
+    return 0;
+}
+
